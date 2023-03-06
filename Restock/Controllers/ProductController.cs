@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Restock.Contracts.v1.Request;
+using Restock.Contracts.v1.Response;
+using Restock.Helpers;
 using Restock.Models;
 using Restock.Repositories;
 using Restock.Services;
@@ -11,12 +13,12 @@ namespace Restock.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IProductRepository _productRepository;
-    private readonly ICartService _cartService;
+    private readonly IUriService _uriService;
 
-    public ProductController(IProductRepository productRepository, ICartService cartService)
+    public ProductController(IProductRepository productRepository, IUriService uriService)
     {
         _productRepository = productRepository;
-        _cartService = cartService;
+        _uriService = uriService;
     }
 
     [HttpPost("createProduct")]
@@ -48,9 +50,45 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("getAllProducts")]
-    public IActionResult GetAllProducts()
+    public IActionResult GetAllProducts([FromQuery] PaginationQuery query)
     {
-        return Ok();
+        var pagination = new PaginationFilter
+        {
+            PageNumber = query.PageNumber,
+            PageSize = query.PageSize
+        };
+
+        var products = _productRepository.GetAllProducts(pagination);
+
+        var productsResponse = new List<ProductResponse>();
+        
+        products.ForEach(product =>
+        {
+            productsResponse.Add(new ProductResponse
+            {
+                Category = product.Category,
+                InStock = product.InStock,
+                Description = product.Description,
+                ImageUrl = product.ImageUrl,
+                Id = product.Id,
+                CreatedAt = product.CreatedAt,
+                Name = product.Name,
+                Price = product.Price,
+                Reviews = product.Reviews,
+                IsAvailable = product.IsAvailable,
+                UpdatedAt = product.UpdatedAt,
+                UserId = product.UserId
+            });
+        });
+        
+        //Returns the default page
+        if (pagination is null || pagination.PageNumber < 1 || pagination.PageSize < 1)
+        {
+            return Ok(new PagedResponse<ProductResponse>(productsResponse));
+        }
+        
+        var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, pagination, productsResponse);
+        return Ok(paginationResponse);
     }
 
     [HttpGet("getProduct/{id}")]

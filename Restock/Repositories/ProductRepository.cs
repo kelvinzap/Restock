@@ -60,8 +60,12 @@ public class ProductRepository : IProductRepository
         return true;
     }
 
-    public List<ProductModel> GetAllProducts()
+    public List<ProductModel> GetAllProducts(PaginationFilter paginationFilter = null)
     {
-        return _products.Values.ToList();
+        if (paginationFilter is null)
+            return _products.Values.ToList();
+
+        var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+        return _products.Values.Skip(skip).Take(paginationFilter.PageSize).ToList();
     }
 }

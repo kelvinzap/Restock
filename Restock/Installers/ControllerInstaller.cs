@@ -1,3 +1,5 @@
+using Restock.Services;
+
 namespace Restock.Installers;
 
 public class ControllerInstaller : IInstaller
@@ -5,10 +7,15 @@ public class ControllerInstaller : IInstaller
     public void InstallServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        //services.AddAuthorization();
-
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IUriService>(provider =>
+        {
+            var accessor = provider.GetRequiredService<IHttpContextAccessor>();
+            var request = accessor.HttpContext.Request;
+            var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), "/");
+            return new UriService(absoluteUri);
+        });
     }
 }

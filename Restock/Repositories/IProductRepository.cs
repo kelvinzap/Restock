@@ -9,5 +9,5 @@ public interface IProductRepository
     bool UpdateProduct(string id, UpdateProductRequest model);
     ProductModel GetProduct(string id);
     bool DeleteProduct(string id);
-    List<ProductModel> GetAllProducts();
+    List<ProductModel> GetAllProducts(PaginationFilter paginationFilter = null);
 }

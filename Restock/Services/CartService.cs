@@ -15,7 +15,7 @@ public class CartService : ICartService
         _productRepository = productRepository;
     }
 
-    public CartModel GetCart(string id)
+    public CartModel GetCart(string id = null)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -45,7 +45,7 @@ public class CartService : ICartService
         return cart;
     }
 
-    public void AddToCart(AddToCartRequest request)
+    public void AddToCart(UpdateQuantityInCartRequest request)
     {
         var product = _productRepository.GetProduct(request.ProductId);
         var cart = _cartRepository.GetCart(request.CartId);
@@ -76,10 +76,10 @@ public class CartService : ICartService
         _cartRepository.UpdateCart(cart);
     }
 
-    public void RemoveFromCart(string cartId, string productId)
+    public void ReduceQuantityInCart(UpdateQuantityInCartRequest request)
     {
-        var product = _productRepository.GetProduct(productId);
-        var cart = _cartRepository.GetCart(cartId);
+        var product = _productRepository.GetProduct(request.ProductId);
+        var cart = _cartRepository.GetCart(request.CartId);
         
         if(cart is null)
             return;
@@ -92,10 +92,27 @@ public class CartService : ICartService
         if (cartItem is null)
             return;
 
-        if (cartItem.Quantity == 0)
+        if (cartItem.Quantity <= 1)
             return;
         
         cart.Items.Single(x => x.ProductId == product.Id).Quantity -= 1;
         _cartRepository.UpdateCart(cart);
+    }
+
+    public void RemoveFromCart(string cartId, string productId)
+    {
+        var product = _productRepository.GetProduct(productId);
+        var cart = _cartRepository.GetCart(cartId);
+        
+        if(cart is null)
+            return;
+        
+        if(product is null)
+            return;
+        
+        var cartItem = cart.Items.SingleOrDefault(x => x.ProductId == product.Id);
+        cart.Items.Remove(cartItem);
+        _cartRepository.UpdateCart(cart);
+        
     }
 }

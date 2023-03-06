@@ -5,9 +5,10 @@ namespace Restock.Services;
 
 public interface ICartService
 {
-    CartModel GetCart(string id);
+    CartModel GetCart(string id = null);
    
-    void AddToCart(AddToCartRequest request);
-    void RemoveFromCart(string cartid, string productId);
+    void AddToCart(UpdateQuantityInCartRequest request);
+    void ReduceQuantityInCart(UpdateQuantityInCartRequest request);
+    void RemoveFromCart(string cartId, string productId);
 
 }
