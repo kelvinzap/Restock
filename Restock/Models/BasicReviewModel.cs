@@ -3,16 +3,12 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Restock.Models;
 
-public class ReviewModel
+public class BasicReviewModel
 {
-    [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public int Id { get; set; } 
-    public int ProductId { get; set; } 
+    public int Id { get; set; }
     public string AuthorName { get; set; }
-    public string Title { get; set; } 
-    public string Body { get; set; } 
+    public string Title { get; set; }
     public int Rating { get; set; } 
     public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
 }

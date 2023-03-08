@@ -75,7 +75,8 @@ public class CartService : ICartService
 
         _cartRepository.UpdateCart(cart);
     }
-
+    
+    
     public void ReduceQuantityInCart(UpdateQuantityInCartRequest request)
     {
         var product = _productRepository.GetProduct(request.ProductId);
