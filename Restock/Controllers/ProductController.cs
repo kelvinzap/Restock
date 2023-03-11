@@ -33,7 +33,7 @@ public class ProductController : ControllerBase
         var product = new ProductModel() 
         {
             Id = Guid.NewGuid().ToString(),
-            Category = model.Category,
+            CategoryId = model.Category,
             CreatedAt = DateTime.UtcNow,
             Description = model.Description,
             ImageUrl = model.ImageUrl,
@@ -66,7 +66,7 @@ public class ProductController : ControllerBase
         {
             productsResponse.Add(new ProductResponse
             {
-                Category = product.Category,
+                Category = product.CategoryId,
                 InStock = product.InStock,
                 Description = product.Description,
                 ImageUrl = product.ImageUrl,
@@ -74,7 +74,6 @@ public class ProductController : ControllerBase
                 CreatedAt = product.CreatedAt,
                 Name = product.Name,
                 Price = product.Price,
-                Reviews = product.Reviews,
                 IsAvailable = product.IsAvailable,
                 UpdatedAt = product.UpdatedAt,
                 UserId = product.UserId

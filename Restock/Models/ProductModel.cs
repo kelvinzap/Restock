@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -5,8 +7,7 @@ namespace Restock.Models;
 
 public class ProductModel
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    [Key]
     public string Id { get; set; }
     public string Name { get; set; }
     public int InStock { get; set; }
@@ -14,9 +15,12 @@ public class ProductModel
     public DateTime? UpdatedAt { get; set; }
     public string UserId { get; set; }
     public string Description { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
     public string ImageUrl { get; set; }
-    public string Category { get; set; }
-    public List<BasicReviewModel> Reviews { get; set; } = new();
+    public string CategoryId { get; set; }
+    [ForeignKey(nameof(CategoryId))]
+    public CategoryModel Category { get; set; }
+    
     public bool IsAvailable { get; set; }
 }

@@ -19,15 +19,15 @@ public class CartController : ControllerBase
     }
 
     [HttpGet("getCart")]
-    public IActionResult GetCart([FromQuery] string? cartId)
+    public async Task<IActionResult> GetCart([FromQuery] string? cartId)
     {
         if (string.IsNullOrWhiteSpace(cartId))
         {
-            var newCart = _cartService.GetCart();
+            var newCart = await _cartService.GetCart();
             return Ok(newCart);
         }
 
-        var cart = _cartService.GetCart(cartId);
+        var cart = await _cartService.GetCart(cartId);
         cart.Items = cart.Items.Where(x => x.Quantity > 0).ToList();
         
         return Ok(cart);

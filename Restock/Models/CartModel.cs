@@ -1,20 +1,24 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace Restock.Models;
 
 public class CartModel
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    [Key]
     public string Id { get; set; }
-    public List<CartItemModel> Items { get; set; }
+    public ICollection<CartItemModel> Items { get; set; }
+    [Column(TypeName = "decimal(18,2)")]
     public decimal TotalPrice { get; set; }
     public string UserId { get; set; }
+    [ForeignKey(nameof(UserId))]
+    public UserModel User { get; set; }
     public string SessionId { get; set; }
 
     public CartModel()
     {
-        this.TotalPrice = 0.0m;
+        TotalPrice = 0.0m;
     }
 }

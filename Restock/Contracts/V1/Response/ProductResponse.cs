@@ -12,6 +12,5 @@ public class ProductResponse
     public decimal Price { get; set; }
     public string ImageUrl { get; set; }
     public string Category { get; set; }
-    public HashSet<string> Reviews { get; set; }
     public bool IsAvailable { get; set; }
 }

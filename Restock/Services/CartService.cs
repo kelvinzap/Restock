@@ -15,17 +15,17 @@ public class CartService : ICartService
         _productRepository = productRepository;
     }
 
-    public CartModel GetCart(string id = null)
+    public async Task<CartModel> GetCart(string id = null)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             CartModel newCart = new()
             {
-                Id = Guid.NewGuid().ToString(),
+                
                 Items = new List<CartItemModel>()
             };
-            _cartRepository.CreateCart(newCart);
-            return newCart;
+            var result = await _cartRepository.CreateCart(newCart);
+            return result;
         }
         
         var cart = _cartRepository.GetCart(id);
@@ -34,7 +34,7 @@ public class CartService : ICartService
         {
             CartModel newCart = new()
             {
-                Id = Guid.NewGuid().ToString(),
+                
                 Items = new List<CartItemModel>()
             };
             _cartRepository.CreateCart(newCart);
@@ -42,13 +42,13 @@ public class CartService : ICartService
             return newCart;
         }
 
-        return cart;
+        return await cart;
     }
 
-    public void AddToCart(UpdateQuantityInCartRequest request)
+    public async Task AddToCart(UpdateQuantityInCartRequest request)
     {
         var product = _productRepository.GetProduct(request.ProductId);
-        var cart = _cartRepository.GetCart(request.CartId);
+        var cart = await _cartRepository.GetCart(request.CartId);
         
         if(cart is null)
             return;
@@ -77,10 +77,10 @@ public class CartService : ICartService
     }
     
     
-    public void ReduceQuantityInCart(UpdateQuantityInCartRequest request)
+    public async Task ReduceQuantityInCart(UpdateQuantityInCartRequest request)
     {
         var product = _productRepository.GetProduct(request.ProductId);
-        var cart = _cartRepository.GetCart(request.CartId);
+        var cart = await _cartRepository.GetCart(request.CartId);
         
         if(cart is null)
             return;
@@ -100,10 +100,10 @@ public class CartService : ICartService
         _cartRepository.UpdateCart(cart);
     }
 
-    public void RemoveFromCart(string cartId, string productId)
+    public async Task RemoveFromCart(string cartId, string productId)
     {
         var product = _productRepository.GetProduct(productId);
-        var cart = _cartRepository.GetCart(cartId);
+        var cart = await _cartRepository.GetCart(cartId);
         
         if(cart is null)
             return;

@@ -29,7 +29,7 @@ public class ProductRepository : IProductRepository
         if (model is null)
             return false;
         
-        _products[product.Id].Category = model.Category;
+        _products[product.Id].CategoryId = model.Category;
         _products[product.Id].Description = model.Description;
         _products[product.Id].Name = model.Name;
         _products[product.Id].Price = model.Price;
