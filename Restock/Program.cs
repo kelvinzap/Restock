@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Hosting;
 using Restock.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,9 +16,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
 
+using (var serviceScope = app.Services.CreateScope())
+{
+    var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        var adminRole = new IdentityRole { Name = "Admin" };
+        await roleManager.CreateAsync(adminRole);
+    }
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        var userRole = new IdentityRole { Name = "User" };
+        await roleManager.CreateAsync(userRole);
+    }
+}
 app.Run();

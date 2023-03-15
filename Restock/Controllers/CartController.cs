@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Restock.Contracts.v1.Request;
 using Restock.Repositories;
@@ -7,6 +9,8 @@ namespace Restock.Controllers;
 
 [ApiController]
 [Route("api/carts/")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
 public class CartController : ControllerBase
 {
     private readonly IProductRepository _productRepository;
@@ -28,13 +32,17 @@ public class CartController : ControllerBase
         }
 
         var cart = await _cartService.GetCart(cartId);
+        
+        if (cart is null)
+            return BadRequest();
+        
         cart.Items = cart.Items.Where(x => x.Quantity > 0).ToList();
         
         return Ok(cart);
     }
 
     [HttpPost("addToCart")]
-    public IActionResult AddToCart([FromBody] UpdateQuantityInCartRequest request)
+    public async Task<IActionResult> AddToCart([FromBody] UpdateQuantityInCartRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.ProductId))
             return BadRequest();
@@ -42,12 +50,12 @@ public class CartController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.CartId))
             return BadRequest();
         
-        _cartService.AddToCart(request);
+       await  _cartService.AddToCart(request);
         return Ok("It worked");
     }
 
-    [HttpPut("reduceQuantity")]
-    public IActionResult ReduceQuantity([FromBody] UpdateQuantityInCartRequest request)
+    [HttpPost("reduceQuantity")]
+    public async Task<IActionResult> ReduceQuantity([FromBody] UpdateQuantityInCartRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.ProductId))
             return BadRequest();
@@ -56,12 +64,12 @@ public class CartController : ControllerBase
             return BadRequest(); 
         
         
-        _cartService.ReduceQuantityInCart(request);
+        await _cartService.ReduceQuantityInCart(request);
         return Ok();
     }
 
     [HttpDelete("removeFromCart/{cartId}/{productId}")]
-    public IActionResult RemoveFromCart([FromRoute] string cartId, [FromRoute] string productId)
+    public async Task<IActionResult> RemoveFromCart([FromRoute] string cartId, [FromRoute] string productId)
     {
         if (string.IsNullOrWhiteSpace(productId))
             return BadRequest();
@@ -69,7 +77,7 @@ public class CartController : ControllerBase
         if (string.IsNullOrWhiteSpace(cartId))
             return BadRequest();
 
-        _cartService.RemoveFromCart(cartId, productId);
+        await _cartService.RemoveFromCart(cartId, productId);
         return Ok();
     }
 }

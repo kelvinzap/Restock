@@ -5,7 +5,7 @@ namespace Restock.Services;
 
 public interface ICartService
 {
-    Task<CartModel> GetCart(string id = null);
+    Task<CartModel?> GetCart(string? id = null);
    
     Task AddToCart(UpdateQuantityInCartRequest request);
     Task ReduceQuantityInCart(UpdateQuantityInCartRequest request);

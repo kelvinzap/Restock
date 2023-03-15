@@ -12,10 +12,8 @@ public class CartModel
     public ICollection<CartItemModel> Items { get; set; }
     [Column(TypeName = "decimal(18,2)")]
     public decimal TotalPrice { get; set; }
-    public string UserId { get; set; }
-    [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; }
-    public string SessionId { get; set; }
+    public string? UserId { get; set; }
+    public string? SessionId { get; set; }
 
     public CartModel()
     {

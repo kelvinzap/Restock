@@ -93,3 +93,4 @@ C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Microsoft.EntityFra
 C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Microsoft.Extensions.DependencyModel.dll
 C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Mono.TextTemplating.dll
 C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\System.CodeDom.dll
+C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

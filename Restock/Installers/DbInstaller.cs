@@ -17,10 +17,9 @@ public class DbInstaller : IInstaller
             .AddEntityFrameworkStores<DataContext>()
             .AddDefaultTokenProviders();
         
-        services.AddSingleton<IProductRepository, ProductRepository>();
-        //services.AddSingleton<ICartRepository, CartRepository>();
-        services.AddSingleton<ICartService, CartService>();
-        services.AddSingleton<IDbConnection, DbConnection>();
-        services.AddSingleton<ICartRepository, MongoCartRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
+        services.AddScoped<ICartService, CartService>();
+        services.AddScoped<IAuthService, AuthService>();
     }
 }

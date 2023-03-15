@@ -1,71 +1,97 @@
+using Microsoft.EntityFrameworkCore;
 using Restock.Contracts.v1.Request;
+using Restock.Data;
 using Restock.Models;
 
 namespace Restock.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly Dictionary<string, ProductModel> _products = new();
-   
-    public bool CreateProduct(ProductModel model)
+    private readonly DataContext _dataContext;
+
+    public ProductRepository(DataContext dataContext)
     {
-        if (model is null)
-            return false;
-        
-        model.Id = Guid.NewGuid().ToString();
-        _products[model.Id] = model;
-        return true;
+        _dataContext = dataContext;
     }
 
-    public bool UpdateProduct(string id, UpdateProductRequest model)
+    public async Task<bool> CreateProduct(ProductModel model)
     {
-        var product = GetProduct(id);
-
-        if (product is null)
+        try
         {
+            await _dataContext.Products.AddAsync(model);
+            var created = await _dataContext.SaveChangesAsync();
+
+            if (created < 1)
+                return false;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+
             return false;
         }
-        
-        if (model is null)
-            return false;
-        
-        _products[product.Id].CategoryId = model.Category;
-        _products[product.Id].Description = model.Description;
-        _products[product.Id].Name = model.Name;
-        _products[product.Id].Price = model.Price;
-        _products[product.Id].ImageUrl = model.ImageUrl;
-        _products[product.Id].InStock = model.InStock;
-        _products[product.Id].IsAvailable = model.IsAvailable;
-        
-        return true;
     }
 
-    public ProductModel GetProduct(string id)
+    public async Task<bool> DeleteProduct(string id)
     {
-        var exists = _products.TryGetValue(id, out var model);
-        
-        return exists ? model : null;
-    }
-
-    public bool DeleteProduct(string id)
-    {
-        var existing = GetProduct(id);
-
-        if (existing is null)
+        try
         {
+            var product = await GetProductById(id);
+
+            if (product is null)
+                return false;
+
+            _dataContext.Products.Remove(product);
+            var deleted = await _dataContext.SaveChangesAsync();
+
+            return deleted >= 1;
+
+        }
+        catch (Exception ex)
+        {
+
             return false;
         }
-        
-        _products.Remove(id);
-        return true;
     }
 
-    public List<ProductModel> GetAllProducts(PaginationFilter paginationFilter = null)
+    public async Task<List<ProductModel>> GetAllProducts(PaginationFilter? paginationFilter = null)
     {
-        if (paginationFilter is null)
-            return _products.Values.ToList();
+        if(paginationFilter is not null)
+        {
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+            return await _dataContext.Products.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
+        }
+        return await _dataContext.Products.ToListAsync();
+    }
 
-        var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
-        return _products.Values.Skip(skip).Take(paginationFilter.PageSize).ToList();
+    public async Task<ProductModel?> GetProductById(string id)
+    {
+        try
+        {
+       return await _dataContext.Products.AsNoTracking().SingleOrDefaultAsync(r => r.Id == id);
+            
+
+        }
+        catch (Exception ex)
+        {
+
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateProduct(ProductModel model)
+    {
+        try
+        {
+            _dataContext.Products.Update(model);
+            var updated = await _dataContext.SaveChangesAsync();
+            return updated < 1 ? false : true;
+        }
+        catch (Exception ex)
+        {
+
+            return false;
+        }
     }
 }

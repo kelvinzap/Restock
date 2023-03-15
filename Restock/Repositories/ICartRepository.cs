@@ -4,8 +4,9 @@ namespace Restock.Repositories;
 
 public interface ICartRepository
 {
-    Task<CartModel> CreateCart(CartModel model);
-    bool UpdateCart(CartModel model);
-    Task<CartModel> GetCart(string Id);
-    bool DeleteCart(string Id);
+    Task<bool> CreateCart(CartModel model);
+    Task<bool> UpdateCart(CartModel model);
+    Task<CartModel?> GetCartById(string Id);
+    Task<bool> DeleteCart(string Id);
+    Task<bool> DeleteCartItem(string Id);
 }

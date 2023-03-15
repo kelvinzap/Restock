@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Restock.Contracts.v1.Request;
 using Restock.Contracts.v1.Response;
@@ -10,6 +12,7 @@ namespace Restock.Controllers;
 
 [ApiController]
 [Route("api/products/")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ProductController : ControllerBase
 {
     private readonly IProductRepository _productRepository;
@@ -22,7 +25,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("createProduct")]
-    public IActionResult CreateProduct([FromBody] CreateProductRequest model)
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest model)
     {
         if (model is null)
             return BadRequest();
@@ -40,17 +43,18 @@ public class ProductController : ControllerBase
             InStock = model.InStock,
             Name = model.Name,
             Price = model.Price,
-            IsAvailable = true
+            IsAvailable = true,
+            UserId = "1234" + Guid.NewGuid().ToString()
         };
         
-        var created = _productRepository.CreateProduct(product);
+        var created = await _productRepository.CreateProduct(product);
 
         return !created ? BadRequest(new {error = "Something went wrong bro"}) : Ok(product);
 
     }
 
     [HttpGet("getAllProducts")]
-    public IActionResult GetAllProducts([FromQuery] PaginationQuery query)
+    public async Task<IActionResult> GetAllProducts([FromQuery] PaginationQuery query)
     {
         var pagination = new PaginationFilter
         {
@@ -58,7 +62,7 @@ public class ProductController : ControllerBase
             PageSize = query.PageSize
         };
 
-        var products = _productRepository.GetAllProducts(pagination);
+        var products = await _productRepository.GetAllProducts(pagination);
 
         var productsResponse = new List<ProductResponse>();
         
@@ -91,23 +95,42 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("getProduct/{id}")]
-    public IActionResult GetProduct([FromRoute] string id)
+    public async Task<IActionResult> GetProduct([FromRoute] string id)
     {
-        var product = _productRepository.GetProduct(id);
+        var product = await _productRepository.GetProductById(id);
         return product is null ? NotFound() : Ok(product);
     }
 
     [HttpPut("updateProduct/{id}")]
-    public IActionResult UpdateProduct([FromRoute] string id, [FromBody] UpdateProductRequest model)
+    public async Task<IActionResult> UpdateProduct([FromRoute] string id, [FromBody] UpdateProductRequest model)
     {
-        var updated = _productRepository.UpdateProduct(id, model);
-        return updated ? Ok(model) : BadRequest(new { custom = "Something went wrong" });
+
+        var productInDb = await _productRepository.GetProductById(id);
+
+        if (productInDb is null)
+            return NotFound();
+
+        var product = new ProductModel()
+        {
+            Id = id,
+            Name = model.Name,
+            InStock = model.InStock,
+            CategoryId = model.Category,
+            Description = model.Description,
+            IsAvailable = model.IsAvailable,
+            ImageUrl = model.ImageUrl,
+            Price = model.Price,
+            UserId = "1234045751e4-6fd4-42cb-a577-ecf3b341fe32"
+        };
+
+        var updated = await _productRepository.UpdateProduct(product);
+        return updated ? Ok(product) : BadRequest(new { custom = "Something went wrong" });
     }
     
     [HttpDelete("deleteProduct/{id}")]
-    private IActionResult DeleteProduct([FromRoute] string id)
+    public async Task<IActionResult> DeleteProduct([FromRoute] string id)
     {
-        var deleted = _productRepository.DeleteProduct(id);
+        var deleted = await _productRepository.DeleteProduct(id);
         return !deleted ? NotFound() : NoContent();
     }
 }

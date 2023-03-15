@@ -15,40 +15,29 @@ public class CartService : ICartService
         _productRepository = productRepository;
     }
 
-    public async Task<CartModel> GetCart(string id = null)
+    public async Task<CartModel?> GetCart(string? id = null)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             CartModel newCart = new()
             {
-                
-                Items = new List<CartItemModel>()
+                Id = Guid.NewGuid().ToString(),
+                Items = new List<CartItemModel>()    
             };
-            var result = await _cartRepository.CreateCart(newCart);
-            return result;
-        }
-        
-        var cart = _cartRepository.GetCart(id);
 
-        if (cart is null)
-        {
-            CartModel newCart = new()
-            {
-                
-                Items = new List<CartItemModel>()
-            };
-            _cartRepository.CreateCart(newCart);
-            
+            await _cartRepository.CreateCart(newCart);
             return newCart;
         }
+        
+        var cart = await _cartRepository.GetCartById(id);
 
-        return await cart;
+        return cart is null ? null : cart;
     }
 
     public async Task AddToCart(UpdateQuantityInCartRequest request)
     {
-        var product = _productRepository.GetProduct(request.ProductId);
-        var cart = await _cartRepository.GetCart(request.CartId);
+        var product = await _productRepository.GetProductById(request.ProductId);
+        var cart = await _cartRepository.GetCartById(request.CartId);
         
         if(cart is null)
             return;
@@ -62,25 +51,26 @@ public class CartService : ICartService
         {
             cartItem = new CartItemModel()
             {
+                Id = Guid.NewGuid().ToString(),
                 CartId = cart.Id,
                 ProductId = product.Id,
                 Quantity = 1
             };
             
             cart.Items.Add(cartItem);
+            await _cartRepository.UpdateCart(cart);
             return;
         }
 
         cart.Items.Single(x => x.ProductId == product.Id).Quantity += 1;
-
-        _cartRepository.UpdateCart(cart);
+        await _cartRepository.UpdateCart(cart);
     }
     
     
     public async Task ReduceQuantityInCart(UpdateQuantityInCartRequest request)
     {
-        var product = _productRepository.GetProduct(request.ProductId);
-        var cart = await _cartRepository.GetCart(request.CartId);
+        var product = await _productRepository.GetProductById(request.ProductId);
+        var cart = await _cartRepository.GetCartById(request.CartId);
         
         if(cart is null)
             return;
@@ -97,13 +87,13 @@ public class CartService : ICartService
             return;
         
         cart.Items.Single(x => x.ProductId == product.Id).Quantity -= 1;
-        _cartRepository.UpdateCart(cart);
+        await _cartRepository.UpdateCart(cart);
     }
 
     public async Task RemoveFromCart(string cartId, string productId)
     {
-        var product = _productRepository.GetProduct(productId);
-        var cart = await _cartRepository.GetCart(cartId);
+        var product = await _productRepository.GetProductById(productId);
+        var cart = await _cartRepository.GetCartById(cartId);
         
         if(cart is null)
             return;
@@ -112,8 +102,13 @@ public class CartService : ICartService
             return;
         
         var cartItem = cart.Items.SingleOrDefault(x => x.ProductId == product.Id);
+
+        if (cartItem is null)
+            return;
+
         cart.Items.Remove(cartItem);
-        _cartRepository.UpdateCart(cart);
+        await _cartRepository.UpdateCart(cart);
+        //await _cartRepository.DeleteCartItem(cartItem.Id);
         
     }
 }

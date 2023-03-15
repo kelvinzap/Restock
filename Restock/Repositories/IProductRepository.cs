@@ -5,9 +5,9 @@ namespace Restock.Repositories;
 
 public interface IProductRepository
 {
-    bool CreateProduct(ProductModel model);
-    bool UpdateProduct(string id, UpdateProductRequest model);
-    ProductModel GetProduct(string id);
-    bool DeleteProduct(string id);
-    List<ProductModel> GetAllProducts(PaginationFilter paginationFilter = null);
+    Task<bool> CreateProduct(ProductModel model);
+    Task<bool> UpdateProduct(ProductModel model);
+    Task<ProductModel?> GetProductById(string id);
+    Task<bool> DeleteProduct(string id);
+    Task<List<ProductModel>> GetAllProducts(PaginationFilter? paginationFilter = null);
 }
