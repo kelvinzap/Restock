@@ -14,6 +14,8 @@ public class ProductModel
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string UserId { get; set; }
+    [ForeignKey(nameof(UserId))]
+    public UserModel User { get; set; }
     public string Description { get; set; }
     [Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }

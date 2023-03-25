@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Restock.Contracts.v1.Request;
 using Restock.Contracts.v1.Response;
+using Restock.Extension;
 using Restock.Helpers;
 using Restock.Models;
 using Restock.Repositories;
@@ -44,13 +45,16 @@ public class ProductController : ControllerBase
             Name = model.Name,
             Price = model.Price,
             IsAvailable = true,
-            UserId = "1234" + Guid.NewGuid().ToString()
+            UserId = HttpContext.GetUserId()
         };
         
         var created = await _productRepository.CreateProduct(product);
 
-        return !created ? BadRequest(new {error = "Something went wrong bro"}) : Ok(product);
+        if (!created)
+            return BadRequest(new {error = "Invalid Request" });
 
+        var locationUri = _uriService.GetProductUri((product.Id));
+        return Created(locationUri, product);
     }
 
     [HttpGet("getAllProducts")]
@@ -79,7 +83,6 @@ public class ProductController : ControllerBase
                 Name = product.Name,
                 Price = product.Price,
                 IsAvailable = product.IsAvailable,
-                UpdatedAt = product.UpdatedAt,
                 UserId = product.UserId
             });
         });
@@ -120,9 +123,14 @@ public class ProductController : ControllerBase
             IsAvailable = model.IsAvailable,
             ImageUrl = model.ImageUrl,
             Price = model.Price,
-            UserId = "1234045751e4-6fd4-42cb-a577-ecf3b341fe32"
+            UserId = productInDb.UserId
         };
 
+        if (product.InStock == 0)
+        {
+            product.IsAvailable = false;
+        }
+        
         var updated = await _productRepository.UpdateProduct(product);
         return updated ? Ok(product) : BadRequest(new { custom = "Something went wrong" });
     }
