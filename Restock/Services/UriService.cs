@@ -12,7 +12,7 @@ public class UriService : IUriService
     }
     public Uri GetProductUri(string productId)
     {
-        return new Uri(_baseUri + "/products/" + productId);
+        return new Uri(_baseUri + "products/" + productId);
     }
 
     public Uri GetAllProductsUri(PaginationQuery paginationQuery = null)
