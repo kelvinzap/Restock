@@ -94,3 +94,4 @@ C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Microsoft.Extension
 C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Mono.TextTemplating.dll
 C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\System.CodeDom.dll
 C:\Users\USER\RiderProjects\Restock\Restock\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\USER\RiderProjects\Restock\Restock\obj\Debug\net7.0\Restock.sourcelink.json

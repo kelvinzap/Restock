@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Restock")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eb5f5ecfaa903fb60703aa99728bd245f20e6ed0")]
 [assembly: System.Reflection.AssemblyProductAttribute("Restock")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Restock")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
